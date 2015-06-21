@@ -1,0 +1,198 @@
+RFC1213-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+        mgmt, NetworkAddress, IpAddress, Counter, Gauge,
+                TimeTicks
+            FROM RFC1155-SMI
+        OBJECT-TYPE
+                FROM RFC-1212;
+
+--  This MIB module uses the extended OBJECT-TYPE macro as
+--  defined in [14];
+
+--  MIB-II (same prefix as MIB-I)
+
+mib-2      OBJECT IDENTIFIER ::= { mgmt 1 }
+
+-- textual conventions
+
+DisplayString ::=
+    OCTET STRING
+-- This data type is used to model textual information taken
+-- from the NVT ASCII character set.  By convention, objects
+-- with this syntax are declared as having
+
+--
+--      SIZE (0..255)
+
+PhysAddress ::=
+    OCTET STRING
+-- This data type is used to model media addresses.  For many
+-- types of media, this will be in a binary representation.
+-- For example, an ethernet address would be represented as
+-- a string of 6 octets.
+
+-- groups in MIB-II
+
+system       OBJECT IDENTIFIER ::= { mib-2 1 }
+
+interfaces   OBJECT IDENTIFIER ::= { mib-2 2 }
+
+at           OBJECT IDENTIFIER ::= { mib-2 3 }
+
+ip           OBJECT IDENTIFIER ::= { mib-2 4 }
+
+icmp         OBJECT IDENTIFIER ::= { mib-2 5 }
+
+tcp          OBJECT IDENTIFIER ::= { mib-2 6 }
+
+udp          OBJECT IDENTIFIER ::= { mib-2 7 }
+
+
+
+sysDescr OBJECT-TYPE
+    SYNTAX  DisplayString (SIZE (0..255))
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+            "A textual description of the entity.  This value
+            should include the full name and version
+            identification of the system's hardware type,
+            software operating-system, and networking
+            software.  It is mandatory that this only contain
+            printable ASCII characters."
+    ::= { system 1 }
+
+ifTable OBJECT-TYPE
+    SYNTAX  SEQUENCE OF IfEntry
+    ACCESS  not-accessible
+    STATUS  mandatory
+    DESCRIPTION
+            "A list of interface entries.  The number of
+            entries is given by the value of ifNumber."
+    ::= { interfaces 2 }
+
+ifEntry OBJECT-TYPE
+    SYNTAX  IfEntry
+    ACCESS  not-accessible
+    STATUS  mandatory
+    DESCRIPTION
+            "An interface entry containing objects at the
+            subnetwork layer and below for a particular
+            interface."
+    INDEX   { ifIndex }
+    ::= { ifTable 1 }
+
+IfEntry ::=
+    SEQUENCE {
+        ifIndex
+            INTEGER,
+        ifDescr
+            DisplayString,
+        ifType
+            INTEGER,
+        ifMtu
+            INTEGER,
+        ifSpeed
+            Gauge,
+        ifPhysAddress
+            PhysAddress,
+        ifAdminStatus
+            INTEGER,
+        ifOperStatus
+            INTEGER,
+        ifLastChange
+            TimeTicks,
+        ifInOctets
+            Counter,
+        ifInUcastPkts
+            Counter,
+        ifInNUcastPkts
+            Counter,
+        ifInDiscards
+            Counter,
+        ifInErrors
+            Counter,
+        ifInUnknownProtos
+            Counter,
+        ifOutOctets
+            Counter,
+        ifOutUcastPkts
+            Counter,
+        ifOutNUcastPkts
+            Counter,
+        ifOutDiscards
+            Counter,
+        ifOutErrors
+            Counter,
+        ifOutQLen
+            Gauge,
+        ifSpecific
+            OBJECT IDENTIFIER
+    }
+
+ifType OBJECT-TYPE
+    SYNTAX  INTEGER {
+                other(1),          -- none of the following
+                regular1822(2),
+                hdh1822(3),
+                ddn-x25(4),
+                rfc877-x25(5),
+                ethernet-csmacd(6),
+                iso88023-csmacd(7),
+                iso88024-tokenBus(8),
+                iso88025-tokenRing(9),
+                iso88026-man(10),
+                starLan(11),
+                proteon-10Mbit(12),
+                proteon-80Mbit(13),
+                hyperchannel(14),
+                fddi(15),
+                lapb(16),
+                sdlc(17),
+                ds1(18),           -- T-1
+                e1(19),            -- european equiv. of T-1
+                basicISDN(20),
+                primaryISDN(21),   -- proprietary serial
+                propPointToPointSerial(22),
+                ppp(23),
+                softwareLoopback(24),
+                eon(25),            -- CLNP over IP [11]
+                ethernet-3Mbit(26),
+                nsip(27),           -- XNS over IP
+                slip(28),           -- generic SLIP
+                ultra(29),          -- ULTRA technologies
+                ds3(30),            -- T-3
+                sip(31),            -- SMDS
+                frame-relay(32)
+            }
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+            "The type of interface, distinguished according to
+            the physical/link protocol(s) immediately `below'
+            the network layer in the protocol stack."
+    ::= { ifEntry 3 }
+
+snmpEnableAuthenTraps OBJECT-TYPE
+    SYNTAX  INTEGER { enabled(1), disabled(2) }
+    ACCESS  read-write
+    STATUS  mandatory
+    DESCRIPTION
+            "Indicates whether the SNMP agent process is
+            permitted to generate authentication-failure
+            traps.  The value of this object overrides any
+            configuration information; as such, it provides a
+            means whereby all authentication-failure traps may
+            be disabled.
+
+            Note that it is strongly recommended that this
+            object be stored in non-volatile memory so that it
+            remains constant between re-initializations of the
+            network management system."
+    ::= { snmp 30 }
+
+
+
+
+END
